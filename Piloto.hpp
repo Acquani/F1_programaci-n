@@ -1,14 +1,14 @@
-// Piloto.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
+// Piloto.hpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
 //
 
 #include <string>
+#include "Puntuacion.hpp"
 class Piloto {
 private:
     std::string nombre;
     int edad;
     std::string nacionalidad;
-    int puntosTotales;
-
+    Puntuacion puntuacion;
 public:
     Piloto(std::string nombre, int edad, std::string nacionalidad);
     void agregarPuntos(int puntos);
