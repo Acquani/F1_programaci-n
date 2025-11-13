@@ -13,3 +13,12 @@ Piloto::Piloto(std::string nombre, int edad, std::string nacionalidad)
 void Piloto::agregarPuntos(int puntos) {
     puntuacion.agregarPuntos(puntos);
 }
+// Devuelve el total de puntos del piloto
+int Piloto::getPuntosTotales() const {
+    return puntuacion.getTotal();
+}
+
+// Devuelve el nombre del piloto
+std::string Piloto::getNombre() const {
+    return nombre;
+}
