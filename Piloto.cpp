@@ -9,3 +9,7 @@ Piloto::Piloto(std::string nombre, int edad, std::string nacionalidad)
       puntuacion()   // se llama al constructor por defecto de Puntuacion
 {
 }
+// Suma puntos al piloto usando su objeto Puntuacion
+void Piloto::agregarPuntos(int puntos) {
+    puntuacion.agregarPuntos(puntos);
+}
