@@ -4,16 +4,16 @@
 #include <Puntuacion.hpp>
 
 Puntuacion::Puntuacion() : puntosTotales(0) {}
-void agregarPuntos(int puntos)
+void Puntuacion::agregarPuntos(int puntos)
 {
 	puntosTotales += puntos;
 	puntosPorCarrera.pushback(puntos);
 }
-int getTotal() const
+int Puntuacion::getTotal() const
 {
 	return puntosTotales;
 }
-void mostrarHistorial() const {
+void Puntuacion::mostrarHistorial() const {
 	cout << "Historial de carreras" << endl;
 	for (int i = 0; i < puntosPorCarrera.size(); i++)
 	{
@@ -22,7 +22,7 @@ void mostrarHistorial() const {
 	}
 	cout << "Total: " << puntosTotales<<endl;
 }
-void reiniciar() {
+void Puntuacion::reiniciar() {
 	puntosTotales = 0;
 	puntosPorCarrera.clear();
 }
