@@ -33,3 +33,16 @@ int Coche::getPotencia() const {
 int Coche::getVelocidadMaxima() const {
     return velocidadMaxima;
 }
+void Coche::mostrarInfo() const {
+    std::cout << "Modelo: " << modelo << "\n";
+    std::cout << "Potencia: " << potencia << " CV\n";
+    std::cout << "Velocidad máxima: " << velocidadMaxima << " km/h\n";
+
+    if (pilotoAsignado != nullptr) {
+        std::cout << "Piloto asignado: "
+                  << pilotoAsignado->getNombre()
+                  << " (" << pilotoAsignado->getPuntosTotales() << " puntos)\n";
+    } else {
+        std::cout << "Piloto asignado: ninguno\n";
+    }
+}
