@@ -20,8 +20,10 @@ public:
     Campeonato(std::string nombre);
 
     // Métodos
-    void agregarCarrera(Carrera* c);
-    void agregarEscuderia(Escuderia* e);
+    void agregarEscuderia(Escuderia* escuderia);
+    void agregarCarrera(Carrera* carrera);
+    void mostrarEscuderias() const;
+    void mostrarCarreras() const;
     void mostrarClasificacionGeneral() const;
     void mostrarCalendario() const;
 };
