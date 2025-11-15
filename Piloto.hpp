@@ -14,6 +14,7 @@ public:
     void agregarPuntos(int puntos);
     int getPuntosTotales() const;
     std::string getNombre() const;
+    void mostrarInfo() const;
 };
 
 
