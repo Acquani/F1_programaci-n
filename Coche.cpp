@@ -1,6 +1,7 @@
 // Coche.cpp
 #include "Coche.hpp"
 #include <string>
+#include <iostream>
 
 // Constructor
 Coche::Coche(std::string modelo, int potencia, int velocidadMaxima)
