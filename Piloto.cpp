@@ -22,3 +22,7 @@ int Piloto::getPuntosTotales() const {
 std::string Piloto::getNombre() const {
     return nombre;
 }
+void Piloto::mostrarInfo() const {
+    std::cout << "Piloto: " << nombre
+              << " - Puntos: " << puntuacion.getTotal() << "\n";
+}
