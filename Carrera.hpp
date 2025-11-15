@@ -6,6 +6,7 @@
 #include <iostream>
 #include "Circuito.hpp"
 #include "Escuderia.hpp"
+#include "Piloto.hpp"
 
 class Carrera {
 private:
