@@ -9,7 +9,7 @@
 
 class Carrera {
 private:
-    Circuito circuito;                 // Dónde se corre
+    Circuito circuito;                 
     std::vector<Escuderia*> escuderiasParticipantes;
     std::vector<Piloto*> clasificacionPilotos; // Resultado ordenado
     bool finalizada;
