@@ -1,38 +1,38 @@
-// Puntuacion.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
-//
+// Puntuacion.cpp
 
-#include <Puntuacion.hpp>
+#include "Puntuacion.hpp"
+#include <iostream>
 
+// Constructor: empieza con 0 puntos
 Puntuacion::Puntuacion() : puntosTotales(0) {}
+
+// Suma puntos y los guarda en el historial
 void Puntuacion::agregarPuntos(int puntos)
 {
-	puntosTotales += puntos;
-	puntosPorCarrera.pushback(puntos);
+    puntosTotales += puntos;
+    puntosPorCarrera.push_back(puntos);   // <- aquí estaba el "pushback"
 }
+
+// Devuelve el total acumulado
 int Puntuacion::getTotal() const
 {
-	return puntosTotales;
+    return puntosTotales;
 }
+
+// Muestra todos los puntos por carrera y el total
 void Puntuacion::mostrarHistorial() const {
-	cout << "Historial de carreras" << endl;
-	for (int i = 0; i < puntosPorCarrera.size(); i++)
-	{
-		p = puntosPorCarrera[i];
-		cout << p << " ";
-	}
-	cout << "Total: " << puntosTotales<<endl;
+    std::cout << "Historial de carreras: ";
+
+    for (std::size_t i = 0; i < puntosPorCarrera.size(); ++i)
+    {
+        std::cout << puntosPorCarrera[i] << " ";
+    }
+
+    std::cout << "\nTotal: " << puntosTotales << std::endl;
 }
+
+// Pone los puntos a cero y borra el historial
 void Puntuacion::reiniciar() {
-	puntosTotales = 0;
-	puntosPorCarrera.clear();
+    puntosTotales = 0;
+    puntosPorCarrera.clear();
 }
-
-// Ejecutar programa: Ctrl + F5 o menú Depurar > Iniciar sin depurar
-// Depurar programa: F5 o menú Depurar > Iniciar depuración
-
-// Sugerencias para primeros pasos: 1. Use la ventana del Explorador de soluciones para agregar y administrar archivos
-//   2. Use la ventana de Team Explorer para conectar con el control de código fuente
-//   3. Use la ventana de salida para ver la salida de compilación y otros mensajes
-//   4. Use la ventana Lista de errores para ver los errores
-//   5. Vaya a Proyecto > Agregar nuevo elemento para crear nuevos archivos de código, o a Proyecto > Agregar elemento existente para agregar archivos de código existentes al proyecto
-//   6. En el futuro, para volver a abrir este proyecto, vaya a Archivo > Abrir > Proyecto y seleccione el archivo .sln
