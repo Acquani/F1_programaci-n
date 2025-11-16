@@ -44,9 +44,6 @@ void guardarClasificacionEnFichero(const Campeonato& campeonato) {
     }
 
     file << "=== CLASIFICACION GENERAL ===\n";
-    file << "Consulte la clasificacion en pantalla (metodo mostrarClasificacionGeneral()).\n";
-    file << "Si quieres, puedes ampliar la clase Campeonato con getters para\n";
-    file << "recorrer las escuderias y guardar los datos reales.\n";
     file.close();
     cout << "Clasificación guardada en 'clasificacion.txt'\n";
 }
