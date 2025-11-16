@@ -1,8 +1,9 @@
-// main.cpp
 #include <iostream>
+#include <fstream>
 #include <vector>
+#include <stdexcept>
+#include <limits>
 
-#include "Puntuacion.hpp"
 #include "Piloto.hpp"
 #include "Coche.hpp"
 #include "Escuderia.hpp"
@@ -10,85 +11,347 @@
 #include "Carrera.hpp"
 #include "Campeonato.hpp"
 
-int main() {
-    // 1. Creamos algunos pilotos
-    Piloto piloto1("Max Verstappen", 27, "Paises Bajos");
-    Piloto piloto2("Lewis Hamilton", 40, "Reino Unido");
-    Piloto piloto3("Charles Leclerc", 28, "Mónaco");
+using namespace std;
 
-    // 2. Creamos algunos coches
-    Coche coche1("Red Bull RB20", 1000, 350);
-    Coche coche2("Mercedes W15",   980, 345);
-    Coche coche3("Ferrari SF-24",  990, 348);
+//FUNCIONES AUXILIARES 
 
-    // Asignamos pilotos a coches
-    coche1.asignarPiloto(&piloto1);
-    coche2.asignarPiloto(&piloto2);
-    coche3.asignarPiloto(&piloto3);
-
-    // 3. Creamos escuderías
-    Escuderia redBull("Red Bull Racing", "Austria");
-    Escuderia mercedes("Mercedes AMG", "Alemania");
-    Escuderia ferrari("Scuderia Ferrari", "Italia");
-
-    // Añadimos pilotos y coches a cada escudería
-    redBull.agregarPiloto(&piloto1);
-    redBull.agregarCoche(&coche1);
-
-    mercedes.agregarPiloto(&piloto2);
-    mercedes.agregarCoche(&coche2);
-
-    ferrari.agregarPiloto(&piloto3);
-    ferrari.agregarCoche(&coche3);
-
-    // 4. Creamos un circuito y una carrera
-    Circuito monza("Monza", "Italia", 5793, 53);
-    Carrera gpItalia(monza);
-
-    // Escuderías que participan en la carrera
-    gpItalia.agregarEscuderia(&redBull);
-    gpItalia.agregarEscuderia(&mercedes);
-    gpItalia.agregarEscuderia(&ferrari);
-
-    // 5. Clasificación de la carrera (ordenada: 1º, 2º, 3º...)
-    std::vector<Piloto*> clasificacion;
-    clasificacion.push_back(&piloto1); // 1º
-    clasificacion.push_back(&piloto3); // 2º
-    clasificacion.push_back(&piloto2); // 3º
-
-    // Registramos la clasificación en la carrera
-    gpItalia.registrarResultado(clasificacion);
-
-    // Asignamos puntos al estilo Fórmula 1 (25, 18, 15 para los 3 primeros)
-    std::vector<int> puntosF1 = {25, 18, 15};
-
-    for (std::size_t i = 0; i < clasificacion.size(); ++i) {
-        if (i < puntosF1.size()) {
-            clasificacion[i]->agregarPuntos(puntosF1[i]);
+int leerEntero(const string& mensaje) {
+    int valor;
+    while (true) {
+        cout << mensaje;
+        if (cin >> valor) {
+            return valor;
+        } else {
+            cout << "Entrada no válida. Introduce un número.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
     }
+}
 
-    // 6. Creamos el campeonato y añadimos escuderías y la carrera
-    Campeonato campeonato("Campeonato del Mundo F1 (ejemplo)");
+string leerLinea(const string& mensaje) {
+    cout << mensaje;
+    string s;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // limpiar buffer
+    getline(cin, s);
+    return s;
+}
 
-    campeonato.agregarEscuderia(&redBull);
-    campeonato.agregarEscuderia(&mercedes);
-    campeonato.agregarEscuderia(&ferrari);
+void guardarClasificacionEnFichero(const Campeonato& campeonato) {
+    ofstream file("clasificacion.txt");
+    if (!file.is_open()) {
+        throw runtime_error("No se pudo abrir el archivo clasificacion.txt");
+    }
 
-    campeonato.agregarCarrera(&gpItalia);
-    // Si en tu Campeonato tienes agregarCircuito(), podrías hacer:
-    // campeonato.agregarCircuito(&monza);
+    file << "=== CLASIFICACION GENERAL ===\n";
+    file << "Consulte la clasificacion en pantalla (metodo mostrarClasificacionGeneral()).\n";
+    file << "Si quieres, puedes ampliar la clase Campeonato con getters para\n";
+    file << "recorrer las escuderias y guardar los datos reales.\n";
+    file.close();
+    cout << "Clasificación guardada en 'clasificacion.txt'\n";
+}
 
-    // 7. Mostramos información
-    std::cout << "========== INFORMACION ESCUDERIAS ==========\n";
-    campeonato.mostrarEscuderias();
+void testBasico() {
+    cout << "\n=== Ejecutando test básico ===\n";
+    Piloto p("Test", 20, "España");
+    p.agregarPuntos(10);
+    if (p.getPuntosTotales() != 10) {
+        throw runtime_error("ERROR en test básico: puntos incorrectos.");
+    }
+    cout << "Test OK.\n";
+}
 
-    std::cout << "\n========== RESULTADOS DE LA CARRERA ==========\n";
-    gpItalia.mostrarResultados();
+//MAIN 
 
-    std::cout << "\n========== CLASIFICACION GENERAL ==========\n";
-    campeonato.mostrarClasificacionGeneral();
+int main() {
+    vector<Escuderia*> escuderias;
+    vector<Piloto*>    pilotos;
+    vector<Coche*>     coches;
+    vector<Circuito*>  circuitos;
+    vector<Carrera*>   carreras;
 
-    std::cout << "\nFin del programa.\n";
+    Campeonato campeonato("Formula X");
+
+    try {
+        bool salir = false;
+        while (!salir) {
+            cout << "\n============ MENU ============\n";
+            cout << "1. Crear escuderia\n";
+            cout << "2. Crear piloto y asignar a escuderia\n";
+            cout << "3. Crear coche y asignar a escuderia/piloto\n";
+            cout << "4. Crear circuito\n";
+            cout << "5. Crear carrera (a partir de un circuito)\n";
+            cout << "6. Registrar resultados de una carrera\n";
+            cout << "7. Mostrar escuderias\n";
+            cout << "8. Mostrar carreras\n";
+            cout << "9. Mostrar clasificacion general\n";
+            cout << "10. Guardar clasificacion en fichero\n";
+            cout << "0. Salir\n";
+            cout << "Elige una opcion: ";
+
+            int opcion;
+            cin >> opcion;
+
+            if (!cin) {   // manejo básico de error de entrada
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Opcion no valida.\n";
+                continue;
+            }
+
+            switch (opcion) {
+
+            //CREAR ESCUDERIA 
+            case 1: {
+                string nombre, pais;
+                nombre = leerLinea("Nombre de la escuderia: ");
+                pais   = leerLinea("Pais de la escuderia: ");
+
+                Escuderia* e = new Escuderia(nombre, pais);
+                escuderias.push_back(e);
+                campeonato.agregarEscuderia(e);
+
+                cout << "Escuderia creada y añadida al campeonato.\n";
+                break;
+            }
+
+            //CREAR PILOTO
+            case 2: {
+                if (escuderias.empty()) {
+                    cout << "Primero debes crear al menos una escuderia.\n";
+                    break;
+                }
+
+                string nombre, nac;
+                int edad;
+
+                nombre = leerLinea("Nombre del piloto: ");
+                edad   = leerEntero("Edad del piloto: ");
+                nac    = leerLinea("Nacionalidad del piloto: ");
+
+                cout << "\nEscuderias disponibles:\n";
+                for (size_t i = 0; i < escuderias.size(); ++i) {
+                    cout << i + 1 << ". " << escuderias[i]->getNombre() << "\n";
+                }
+                int idx = leerEntero("Elige escuderia para el piloto: ") - 1;
+
+                if (idx < 0 || idx >= (int)escuderias.size()) {
+                    cout << "Escuderia no valida.\n";
+                    break;
+                }
+
+                Piloto* p = new Piloto(nombre, edad, nac);
+                pilotos.push_back(p);
+                escuderias[idx]->agregarPiloto(p);
+
+                cout << "Piloto creado y asignado.\n";
+                break;
+            }
+
+            //CREAR COCHE
+            case 3: {
+                if (escuderias.empty()) {
+                    cout << "Primero debes crear al menos una escuderia.\n";
+                    break;
+                }
+
+                string modelo;
+                int potencia, vmax;
+
+                modelo   = leerLinea("Modelo del coche: ");
+                potencia = leerEntero("Potencia (CV): ");
+                vmax     = leerEntero("Velocidad maxima (km/h): ");
+
+                cout << "\nEscuderias disponibles:\n";
+                for (size_t i = 0; i < escuderias.size(); ++i) {
+                    cout << i + 1 << ". " << escuderias[i]->getNombre() << "\n";
+                }
+                int idxEsc = leerEntero("Elige escuderia para el coche: ") - 1;
+
+                if (idxEsc < 0 || idxEsc >= (int)escuderias.size()) {
+                    cout << "Escuderia no valida.\n";
+                    break;
+                }
+
+                Coche* c = new Coche(modelo, potencia, vmax);
+                coches.push_back(c);
+                escuderias[idxEsc]->agregarCoche(c);
+
+                // Asignar piloto opcionalmente
+                if (!pilotos.empty()) {
+                    cout << "¿Quieres asignar un piloto a este coche? (1=si, 0=no): ";
+                    int resp;
+                    cin >> resp;
+                    if (resp == 1) {
+                        cout << "Pilotos disponibles:\n";
+                        for (size_t i = 0; i < pilotos.size(); ++i) {
+                            cout << i + 1 << ". " << pilotos[i]->getNombre() << "\n";
+                        }
+                        int idxPil = leerEntero("Elige piloto: ") - 1;
+                        if (idxPil >= 0 && idxPil < (int)pilotos.size()) {
+                            c->asignarPiloto(pilotos[idxPil]);
+                            cout << "Piloto asignado al coche.\n";
+                        } else {
+                            cout << "Piloto no valido. Coche sin piloto.\n";
+                        }
+                    }
+                }
+
+                cout << "Coche creado.\n";
+                break;
+            }
+
+            //CREAR CIRCUITO
+            case 4: {
+                string nombre, pais;
+                int longitud, vueltas;
+
+                nombre   = leerLinea("Nombre del circuito: ");
+                pais     = leerLinea("Pais del circuito: ");
+                longitud = leerEntero("Longitud (m): ");
+                vueltas  = leerEntero("Numero de vueltas: ");
+
+                Circuito* cir = new Circuito(nombre, pais, longitud, vueltas);
+                circuitos.push_back(cir);
+
+                cout << "Circuito creado.\n";
+                break;
+            }
+
+            //CREAR CARRERA
+            case 5: {
+                if (circuitos.empty()) {
+                    cout << "Primero debes crear al menos un circuito.\n";
+                    break;
+                }
+
+                cout << "\nCircuitos disponibles:\n";
+                for (size_t i = 0; i < circuitos.size(); ++i) {
+                    cout << i + 1 << ". " << circuitos[i]->getNombre()
+                         << " (" << circuitos[i]->getPais() << ")\n";
+                }
+                int idxC = leerEntero("Elige circuito para la carrera: ") - 1;
+
+                if (idxC < 0 || idxC >= (int)circuitos.size()) {
+                    cout << "Circuito no valido.\n";
+                    break;
+                }
+
+                // Carrera recibe una referencia al circuito
+                Carrera* car = new Carrera(*circuitos[idxC]);
+                carreras.push_back(car);
+                campeonato.agregarCarrera(car);
+
+                // añado todas las escuderias 
+                for (Escuderia* e : escuderias) {
+                    car->agregarEscuderia(e);
+                }
+
+                cout << "Carrera creada y escuderias añadidas.\n";
+                break;
+            }
+
+            //REGISTRAR RESULTADOS
+            case 6: {
+                if (carreras.empty()) {
+                    cout << "No hay carreras creadas.\n";
+                    break;
+                }
+                if (pilotos.empty()) {
+                    cout << "No hay pilotos para registrar resultados.\n";
+                    break;
+                }
+
+                cout << "\nCarreras disponibles:\n";
+                for (size_t i = 0; i < carreras.size(); ++i) {
+                    cout << i + 1 << ". Carrera " << i + 1 << "\n";
+                }
+                int idxCar = leerEntero("Elige carrera: ") - 1;
+
+                if (idxCar < 0 || idxCar >= (int)carreras.size()) {
+                    cout << "Carrera no valida.\n";
+                    break;
+                }
+
+                int n = leerEntero("¿Cuantos pilotos quieres clasificar?: ");
+                if (n <= 0) {
+                    cout << "Nada que registrar.\n";
+                    break;
+                }
+
+                vector<Piloto*> clasificacion;
+                for (int i = 0; i < n; ++i) {
+                    cout << "\nPilotos disponibles:\n";
+                    for (size_t j = 0; j < pilotos.size(); ++j) {
+                        cout << j + 1 << ". " << pilotos[j]->getNombre()
+                             << " (puntos actuales: " << pilotos[j]->getPuntosTotales() << ")\n";
+                    }
+                    int idxP = leerEntero("Indice del piloto en posicion "
+                                          + to_string(i + 1) + ": ") - 1;
+
+                    if (idxP < 0 || idxP >= (int)pilotos.size()) {
+                        cout << "Piloto no valido. Se salta esta posicion.\n";
+                        continue;
+                    }
+                    int puntos = leerEntero("Puntos obtenidos por este piloto: ");
+                    pilotos[idxP]->agregarPuntos(puntos);
+                    clasificacion.push_back(pilotos[idxP]);
+                }
+
+                carreras[idxCar]->registrarResultado(clasificacion);
+                cout << "Resultados registrados.\n";
+                break;
+            }
+
+            // MOSTRAR ESCUDERIAS
+            case 7: {
+                campeonato.mostrarEscuderias();
+                break;
+            }
+
+            // MOSTRAR CARRERAS 
+            case 8: {
+                campeonato.mostrarCarreras();
+                break;
+            }
+
+            // CLASIFICACION GENERAL
+            case 9: {
+                campeonato.mostrarClasificacionGeneral();
+                break;
+            }
+
+            // GUARDAR EN FICHERO 
+            case 10: {
+                guardarClasificacionEnFichero(campeonato);
+                break;
+            }
+
+            // SALIR 
+            case 0: {
+                salir = true;
+                break;
+            }
+
+            default:
+                cout << "Opcion no valida.\n";
+                break;
+            }
+        }
+
+        // test obligatorio
+        testBasico();
+    }
+    catch (exception& e) {
+        cerr << "ERROR: " << e.what() << "\n";
+    }
+
+    //  LIBERAR MEMORIA DINAMICA
+    for (Escuderia* e : escuderias) delete e;
+    for (Piloto*    p : pilotos)    delete p;
+    for (Coche*     c : coches)     delete c;
+    for (Circuito*  c : circuitos)  delete c;
+    for (Carrera*   c : carreras)   delete c;
+
     return 0;
 }
