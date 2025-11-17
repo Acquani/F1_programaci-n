@@ -115,7 +115,7 @@ int main() {
             cout << "8. Mostrar carreras\n";
             cout << "9. Mostrar clasificacion general\n";
             cout << "10. Guardar clasificacion en fichero\n";
-            cout << "11. Leer clasificacion desde fichero\n";
+            cout << "11. Leer clasificacion anterior desde fichero\n";
             cout << "0. Salir\n";
             cout << "Elige una opcion: ";
 
