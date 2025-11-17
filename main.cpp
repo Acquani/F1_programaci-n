@@ -3,6 +3,8 @@
 #include <vector>
 #include <stdexcept>
 #include <limits>
+#include <algorithm>
+
 
 #include "Piloto.hpp"
 #include "Coche.hpp"
@@ -20,6 +22,7 @@ int leerEntero(const string& mensaje) {
     while (true) {
         cout << mensaje;
         if (cin >> valor) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
             return valor;
         } else {
             cout << "Entrada no válida. Introduce un número.\n";
@@ -32,21 +35,35 @@ int leerEntero(const string& mensaje) {
 string leerLinea(const string& mensaje) {
     cout << mensaje;
     string s;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // limpiar buffer
     getline(cin, s);
     return s;
 }
 
-void guardarClasificacionEnFichero(const Campeonato& campeonato) {
+
+void guardarClasificacionEnFichero(const vector<Escuderia*>& escuderias) {
     ofstream file("clasificacion.txt");
     if (!file.is_open()) {
         throw runtime_error("No se pudo abrir el archivo clasificacion.txt");
     }
 
+    vector<Escuderia*> clasificacion = escuderias;
+    std::sort(clasificacion.begin(), clasificacion.end(),
+              [](Escuderia* a, Escuderia* b) {
+                  return a->getPuntosTotales() > b->getPuntosTotales();
+              });
+
     file << "=== CLASIFICACION GENERAL ===\n";
+    for (size_t i = 0; i < clasificacion.size(); ++i) {
+        file << i + 1 << ". "
+             << clasificacion[i]->getNombre()
+             << " - " << clasificacion[i]->getPuntosTotales()
+             << " puntos\n";
+    }
+
     file.close();
     cout << "Clasificación guardada en 'clasificacion.txt'\n";
 }
+
 
 void testBasico() {
     cout << "\n=== Ejecutando test básico ===\n";
@@ -86,15 +103,7 @@ int main() {
             cout << "0. Salir\n";
             cout << "Elige una opcion: ";
 
-            int opcion;
-            cin >> opcion;
-
-            if (!cin) {   // manejo básico de error de entrada
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Opcion no valida.\n";
-                continue;
-            }
+            int opcion = leerEntero("Elige una opcion: ");
 
             switch (opcion) {
 
@@ -320,9 +329,10 @@ int main() {
 
             // GUARDAR EN FICHERO 
             case 10: {
-                guardarClasificacionEnFichero(campeonato);
+                guardarClasificacionEnFichero(escuderias);
                 break;
             }
+
 
             // SALIR 
             case 0: {
