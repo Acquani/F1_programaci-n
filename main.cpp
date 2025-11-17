@@ -39,7 +39,22 @@ string leerLinea(const string& mensaje) {
     return s;
 }
 
+void leerClasificacionDesdeFichero() {
+    ifstream file("clasificacion.txt");
+    if (!file.is_open()) {
+        cout << "No se pudo abrir el archivo clasificacion.txt\n";
+        return;
+    }
 
+    cout << "\n=== CLASIFICACION DESDE FICHERO ===\n";
+
+    string linea;
+    while (getline(file, linea)) {
+        cout << linea << "\n";
+    }
+
+    file.close();
+}
 void guardarClasificacionEnFichero(const vector<Escuderia*>& escuderias) {
     ofstream file("clasificacion.txt");
     if (!file.is_open()) {
@@ -100,6 +115,7 @@ int main() {
             cout << "8. Mostrar carreras\n";
             cout << "9. Mostrar clasificacion general\n";
             cout << "10. Guardar clasificacion en fichero\n";
+            cout << "11. Leer clasificacion desde fichero\n";
             cout << "0. Salir\n";
             cout << "Elige una opcion: ";
 
@@ -333,7 +349,10 @@ int main() {
                 break;
             }
 
-
+            case 11: {
+                leerClasificacionDesdeFichero();
+                break;
+            }
             // SALIR 
             case 0: {
                 salir = true;
